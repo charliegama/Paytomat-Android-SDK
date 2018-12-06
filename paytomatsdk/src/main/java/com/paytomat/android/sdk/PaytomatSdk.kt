@@ -1,17 +1,14 @@
 package com.paytomat.android.sdk
 
 import android.app.Activity
+import android.app.Activity.RESULT_CANCELED
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.text.format.DateUtils
 import android.util.LruCache
-import com.paytomat.android.sdk.model.BrandingModel
-import com.paytomat.android.sdk.model.LoginModel
-import com.paytomat.android.sdk.model.TokenModel
-import com.paytomat.android.sdk.model.TransactionModel
+import com.paytomat.android.sdk.model.*
 import java.util.*
-
 
 /**
  * created by Alex Ivanov on 11/29/18.
@@ -23,6 +20,7 @@ object PaytomatSdk {
     private const val TRANSFER_INTEGRATION_CLASS = "com.paytomat.ui.integration.transfer.TransferActivity"
 
     private const val KEY_COMMON_UUID = "key.common.uuid"
+    private const val KEY_COMMON_ERROR_CODE = "key.common.errorCode"
     private const val KEY_LOGIN_ACCOUNT_NAME = "key.login.accountName"
     private const val KEY_TRANSFER_TRANSACTION_ID = "key.transfer.transactionId"
 
@@ -34,7 +32,7 @@ object PaytomatSdk {
 
     /**
      * Checks if Paytomat application is installed
-     * @param context - application or activity context
+     * @param context application or activity context
      * @return if Paytomat application is installed
      */
     @JvmStatic
@@ -96,11 +94,26 @@ object PaytomatSdk {
      * @return account name if all data is accurate
      */
     @JvmStatic
-    fun handleLoginResult(requestCode: Int, resultCode: Int, data: Intent?): String? {
-        if (requestCode != CODE_LOGIN_REQUEST || resultCode != Activity.RESULT_OK || data == null) return null
+    fun handleLoginResult(requestCode: Int, resultCode: Int, data: Intent?): Result<LoginAccount> {
+        if (resultCode == RESULT_CANCELED && data == null) return Result(ERROR_CODE_CANCELED, "login", null)
+        if (requestCode != CODE_LOGIN_REQUEST || data == null) return Result(ERROR_CODE_PARSE, "login", null)
         val uuid: String? = data.getStringExtra(KEY_COMMON_UUID)
         val accountName: String? = data.getStringExtra(KEY_LOGIN_ACCOUNT_NAME)
-        return accountName?.takeIf { uuid != null && lastActionsIds.get(uuid)?.equals("login") ?: false }
+            ?.takeIf { uuid != null && lastActionsIds.get(uuid)?.equals("login") ?: false }
+        var errorCode: Int =
+            data.getIntExtra(KEY_COMMON_ERROR_CODE, SUCCESS).let { if (accountName != null) SUCCESS else it }
+
+        if (errorCode !in arrayOf(
+                SUCCESS, ERROR_CODE_NO_MNEMONIC, ERROR_CODE_NO_ACCOUNT, ERROR_CODE_INVALID_EOS_SYMBOL,
+                ERROR_CODE_INVALID_RECIPIENT_ACCOUNT, ERROR_CODE_NOT_ENOUGHT_BALANCE,
+                ERROR_CODE_PARSE, ERROR_CODE_UNKNOWN
+            )
+        ) {
+            errorCode = ERROR_CODE_UNKNOWN
+        }
+        if (resultCode != Activity.RESULT_OK) return Result(errorCode, "login", null)
+        val account = accountName?.let { LoginAccount(it) }
+        return Result(errorCode, "login", account)
     }
 
     /**
@@ -148,11 +161,27 @@ object PaytomatSdk {
      * @return transaction ID if all data is accurate
      */
     @JvmStatic
-    fun handleTransferResult(requestCode: Int, resultCode: Int, data: Intent?): String? {
-        if (requestCode != CODE_TRANSFER_REQUEST || resultCode != Activity.RESULT_OK || data == null) return null
+    fun handleTransferResult(requestCode: Int, resultCode: Int, data: Intent?): Result<TransferId> {
+        if (resultCode == RESULT_CANCELED && data == null) return Result(ERROR_CODE_CANCELED, "transfer", null)
+        if (requestCode != CODE_TRANSFER_REQUEST || data == null) return Result(ERROR_CODE_PARSE, "transfer", null)
         val uuid: String? = data.getStringExtra(KEY_COMMON_UUID)
         val transactionId: String? = data.getStringExtra(KEY_TRANSFER_TRANSACTION_ID)
-        return transactionId?.takeIf { uuid != null && lastActionsIds.get(uuid)?.equals("transfer") ?: false }
+        val transferId: String? =
+            transactionId?.takeIf { uuid != null && lastActionsIds.get(uuid)?.equals("transfer") ?: false }
+        var errorCode: Int =
+            data.getIntExtra(KEY_COMMON_ERROR_CODE, SUCCESS).let {
+                if (transferId != null) SUCCESS else it
+            }
+        if (errorCode !in arrayOf(
+                SUCCESS, ERROR_CODE_NO_MNEMONIC, ERROR_CODE_NO_ACCOUNT, ERROR_CODE_INVALID_EOS_SYMBOL,
+                ERROR_CODE_INVALID_RECIPIENT_ACCOUNT, ERROR_CODE_NOT_ENOUGHT_BALANCE,
+                ERROR_CODE_PARSE, ERROR_CODE_CANCELED, ERROR_CODE_UNKNOWN
+            )
+        ) {
+            errorCode = ERROR_CODE_UNKNOWN
+        }
+        if (resultCode != Activity.RESULT_OK) return Result(errorCode, "transfer", null)
+        val transfer = transferId?.let { TransferId(it) }
+        return Result(errorCode, "transfer", transfer)
     }
-
 }

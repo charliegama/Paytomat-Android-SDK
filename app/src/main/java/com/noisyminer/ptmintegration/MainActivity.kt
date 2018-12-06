@@ -3,11 +3,11 @@ package com.noisyminer.ptmintegration
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.widget.Toast
-import com.paytomat.android.sdk.PaytomatSdk
-import com.paytomat.android.sdk.model.BrandingModel
-import com.paytomat.android.sdk.model.TokenModel
+import com.paytomat.android.sdk.*
+import com.paytomat.android.sdk.model.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -53,17 +53,42 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PaytomatSdk.CODE_LOGIN_REQUEST) {
-            val accountName: String? = PaytomatSdk.handleLoginResult(requestCode, resultCode, data)
-            Toast.makeText(this, accountName?.let { "Account name is $it" } ?: "No account name", Toast.LENGTH_SHORT)
-                .show()
+            val accountResult: Result<LoginAccount> = PaytomatSdk.handleLoginResult(requestCode, resultCode, data)
+            if (accountResult.isSuccess()) accountResult.result?.also {
+                Toast.makeText(
+                    this,
+                    it.accountName,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            else showError(accountResult.code)
+            Log.d("<<SS", accountResult.toString())
         } else if (requestCode == PaytomatSdk.CODE_TRANSFER_REQUEST) {
-            val transactionId: String? = PaytomatSdk.handleTransferResult(requestCode, resultCode, data)
-            Toast.makeText(
+            val transactionIdResult: Result<TransferId> =
+                PaytomatSdk.handleTransferResult(requestCode, resultCode, data)
+            if (transactionIdResult.isSuccess()) Toast.makeText(
                 this,
-                transactionId?.let { "Transaction ID is $it" } ?: "No transactionID",
+                transactionIdResult.result?.let { "Transaction ID is $it" } ?: "No transactionID",
                 Toast.LENGTH_SHORT)
                 .show()
+            else showError(transactionIdResult.code)
+            Log.d("<<SS", transactionIdResult.toString())
         }
 
+    }
+
+    private fun showError(errorCode: Int) {
+        val errorRes: Int = when (errorCode) {
+            SUCCESS -> return
+            ERROR_CODE_NO_MNEMONIC -> R.string.error_no_mnemonic
+            ERROR_CODE_NO_ACCOUNT -> R.string.error_no_account
+            ERROR_CODE_INVALID_EOS_SYMBOL -> R.string.error_invalid_eos_symbol
+            ERROR_CODE_INVALID_RECIPIENT_ACCOUNT -> R.string.error_invalid_recipient_address
+            ERROR_CODE_NOT_ENOUGHT_BALANCE -> R.string.error_not_enough_balance
+            ERROR_CODE_PARSE -> R.string.error_parse
+            ERROR_CODE_CANCELED -> R.string.error_canceled
+            else -> R.string.error_unknown
+        }
+        Toast.makeText(this, errorRes, Toast.LENGTH_SHORT).show()
     }
 }

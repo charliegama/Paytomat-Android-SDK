@@ -3,4 +3,14 @@
 
     <string name="triggerLogin">Trigger login</string>
     <string name="triggerTransfer">Trigger transfer</string>
+
+    <string name="error_no_mnemonic">Paytomat not initialized</string>
+    <string name="error_no_account">No account</string>
+    <string name="error_invalid_eos_symbol">Invalid eos symbol</string>
+    <string name="error_invalid_recipient_address">Invalid recipient address</string>
+    <string name="error_not_enough_balance">Not enough balance</string>
+    <string name="error_parse">Parsing error</string>
+    <string name="error_canceled">Canceled action</string>
+    <string name="error_unknown">Something went wrong</string>
+
 </resources>
