@@ -6,7 +6,8 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import com.paytomat.android.sdk.*
+import com.paytomat.android.sdk.Codes
+import com.paytomat.android.sdk.PaytomatSdk
 import com.paytomat.android.sdk.model.*
 
 
@@ -18,30 +19,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun triggerLogin(view: View) {
-        if (!PaytomatSdk.requestLogin(
-                this,
-                BrandingModel.Builder()
-                    .setIconUrl("https://lh3.googleusercontent.com/4XigLFnoMuxPShHKPUdehtqBdKRe48nbYbFtpIroMUZZqcF-Bt1-UqpEL9ioOSc1-lfC=s360")
-                    .setTitle("Integration Test")
-                    .setDescription("Login to PTM integration app")
-                    .build()
-            )
-        ) {
+        val brandingModel: BrandingModel = BrandingModel.Builder()
+            .setIconUrl("https://lh3.googleusercontent.com/4XigLFnoMuxPShHKPUdehtqBdKRe48nbYbFtpIroMUZZqcF-Bt1-UqpEL9ioOSc1-lfC=s360")
+            .setTitle("Integration Test")
+            .setDescription("Login to PTM integration app")
+            .build()
+        if (!PaytomatSdk.requestLogin(this, brandingModel)) {
             Toast.makeText(applicationContext, " launch Intent not available", Toast.LENGTH_SHORT).show()
             PaytomatSdk.requestDownload(this)
         }
     }
 
     fun triggerTransfer(view: View) {
+        val brandingModel: BrandingModel = BrandingModel.Builder()
+            .setIconUrl("https://lh3.googleusercontent.com/4XigLFnoMuxPShHKPUdehtqBdKRe48nbYbFtpIroMUZZqcF-Bt1-UqpEL9ioOSc1-lfC=s360")
+            .setTitle("Integration Test")
+            .setDescription("Login to PTM integration app")
+            .build()
+        val tokenModel: TokenModel = TokenModel.eos(0.001)
         if (!PaytomatSdk.requestTransaction(
                 this,
-                brandingModel = BrandingModel.Builder()
-                    .setIconUrl("https://lh3.googleusercontent.com/4XigLFnoMuxPShHKPUdehtqBdKRe48nbYbFtpIroMUZZqcF-Bt1-UqpEL9ioOSc1-lfC=s360")
-                    .setTitle("Integration Test")
-                    .setDescription("Login to PTM integration app")
-                    .build(),
-                to = "co23sc5xj2kb",
-                tokenModel = TokenModel.eos(0.001),
+                brandingModel = brandingModel,
+                to = "someaddress1",
+                tokenModel = tokenModel,
                 memo = "PTM integration test"
             )
         ) {
@@ -66,7 +66,8 @@ class MainActivity : AppCompatActivity() {
         } else if (requestCode == PaytomatSdk.CODE_TRANSFER_REQUEST) {
             val transactionIdResult: Result<TransferId> =
                 PaytomatSdk.handleTransferResult(requestCode, resultCode, data)
-            if (transactionIdResult.isSuccess()) Toast.makeText(
+            if (transactionIdResult.isSuccess())
+            Toast.makeText(
                 this,
                 transactionIdResult.result?.let { "Transaction ID is $it" } ?: "No transactionID",
                 Toast.LENGTH_SHORT)
@@ -74,19 +75,18 @@ class MainActivity : AppCompatActivity() {
             else showError(transactionIdResult.code)
             Log.d("<<SS", transactionIdResult.toString())
         }
-
     }
 
     private fun showError(errorCode: Int) {
         val errorRes: Int = when (errorCode) {
-            SUCCESS -> return
-            ERROR_CODE_NO_MNEMONIC -> R.string.error_no_mnemonic
-            ERROR_CODE_NO_ACCOUNT -> R.string.error_no_account
-            ERROR_CODE_INVALID_EOS_SYMBOL -> R.string.error_invalid_eos_symbol
-            ERROR_CODE_INVALID_RECIPIENT_ACCOUNT -> R.string.error_invalid_recipient_address
-            ERROR_CODE_NOT_ENOUGHT_BALANCE -> R.string.error_not_enough_balance
-            ERROR_CODE_PARSE -> R.string.error_parse
-            ERROR_CODE_CANCELED -> R.string.error_canceled
+            Codes.SUCCESS -> return
+            Codes.ERROR_CODE_NO_MNEMONIC -> R.string.error_no_mnemonic
+            Codes.ERROR_CODE_NO_ACCOUNT -> R.string.error_no_account
+            Codes.ERROR_CODE_INVALID_EOS_SYMBOL -> R.string.error_invalid_eos_symbol
+            Codes.ERROR_CODE_INVALID_RECIPIENT_ACCOUNT -> R.string.error_invalid_recipient_address
+            Codes.ERROR_CODE_NOT_ENOUGHT_BALANCE -> R.string.error_not_enough_balance
+            Codes.ERROR_CODE_PARSE -> R.string.error_parse
+            Codes.ERROR_CODE_CANCELED -> R.string.error_canceled
             else -> R.string.error_unknown
         }
         Toast.makeText(this, errorRes, Toast.LENGTH_SHORT).show()

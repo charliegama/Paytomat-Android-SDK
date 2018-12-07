@@ -7,6 +7,15 @@ import android.content.Intent
 import android.net.Uri
 import android.text.format.DateUtils
 import android.util.LruCache
+import com.paytomat.android.sdk.Codes.ERROR_CODE_CANCELED
+import com.paytomat.android.sdk.Codes.ERROR_CODE_INVALID_EOS_SYMBOL
+import com.paytomat.android.sdk.Codes.ERROR_CODE_INVALID_RECIPIENT_ACCOUNT
+import com.paytomat.android.sdk.Codes.ERROR_CODE_NOT_ENOUGHT_BALANCE
+import com.paytomat.android.sdk.Codes.ERROR_CODE_NO_ACCOUNT
+import com.paytomat.android.sdk.Codes.ERROR_CODE_NO_MNEMONIC
+import com.paytomat.android.sdk.Codes.ERROR_CODE_PARSE
+import com.paytomat.android.sdk.Codes.ERROR_CODE_UNKNOWN
+import com.paytomat.android.sdk.Codes.SUCCESS
 import com.paytomat.android.sdk.model.*
 import java.util.*
 

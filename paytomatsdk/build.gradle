@@ -1,10 +1,35 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 
+ext {
+    bintrayRepo = 'Paytomat-Android-SDK'
+    bintrayName = 'Paytomat-Android-SDK'
+
+    publishedGroupId = 'com.paytomat'
+    libraryName = 'paytomat-android-sdk'
+    artifact = 'paytomat-android-sdk'
+
+    libraryDescription = 'Send transactions and get account information via Paytomat Wallet'
+
+    siteUrl = 'https://github.com/paytomat/Paytomat-Android-SDK'
+    gitUrl = 'https://github.com/paytomat/Paytomat-Android-SDK.git'
+
+    libraryVersion = '0.1.0'
+
+    developerId = 'axel95ua'
+    developerName = 'Alex Ivanov'
+    developerEmail = 'axel95ua@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
 android {
     compileSdkVersion 28
-
 
 
     defaultConfig {
@@ -33,3 +58,9 @@ dependencies {
 repositories {
     mavenCentral()
 }
+
+tasks.withType(Javadoc) {
+    enabled = false
+}
+
+apply from: 'https://raw.githubusercontent.com/LissF/JCenter/master/script.gradle'
