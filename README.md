@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-	implementation 'com.paytomat:paytomat-android-sdk:0.1.0'
+	implementation 'com.paytomat:paytomat-android-sdk:0.1.1'
 }
 ```
 
