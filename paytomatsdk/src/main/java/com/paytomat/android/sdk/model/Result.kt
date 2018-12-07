@@ -1,6 +1,6 @@
 package com.paytomat.android.sdk.model
 
-import com.paytomat.android.sdk.SUCCESS
+import com.paytomat.android.sdk.Codes.SUCCESS
 
 /**
  * created by Alex Ivanov on 2018-12-06.
