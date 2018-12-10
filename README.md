@@ -18,7 +18,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.paytomat:paytomat-android-sdk:0.1.1'
+    implementation 'com.paytomat:paytomat-android-sdk:0.1.2'
 }
 ```
 
