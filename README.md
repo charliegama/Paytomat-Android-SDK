@@ -12,13 +12,13 @@ You can download a jar from GitHub's [releases page](https://github.com/paytomat
 Or use Gradle:
 ```groovy
 allprojects {
-	repositories {
-	        maven { url 'https://dl.bintray.com/axel95ua/Paytomat-Android-SDK' }
-	}
+    repositories {
+        maven { url 'https://dl.bintray.com/axel95ua/Paytomat-Android-SDK' }
+    }
 }
 
 dependencies {
-	implementation 'com.paytomat:paytomat-android-sdk:0.1.1'
+    implementation 'com.paytomat:paytomat-android-sdk:0.1.1'
 }
 ```
 
