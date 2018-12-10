@@ -11,8 +11,10 @@ You can download a jar from GitHub's [releases page](https://github.com/paytomat
 
 Or use Gradle:
 ```groovy
-repositories {
-  jcenter()
+allprojects {
+	repositories {
+	        maven { url 'https://dl.bintray.com/axel95ua/Paytomat-Android-SDK' }
+	}
 }
 
 dependencies {
